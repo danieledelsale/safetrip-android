@@ -85,7 +85,6 @@ public class LocationUpdate extends Service {
                         .build();
 
         startForeground(1337, notification);
-        Toast.makeText(this, "SERVIZIO PARTITO!", Toast.LENGTH_LONG).show();
         mHandlerTask.run();
         return mStartMode;
     }

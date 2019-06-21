@@ -25,6 +25,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -51,11 +53,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     Handler mHandler = new Handler();
     List<KidsData> kidsData = new ArrayList<>();
 
+    Polygon safeArea = null;
+
     Runnable mHandlerTask = new Runnable()
     {
         @Override
         public void run() {
             new updateMap().execute();
+            new updateSafeArea().execute();
             mHandler.postDelayed(mHandlerTask, 10000);
         }
     };
@@ -83,7 +88,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
 
     private class updateMap extends AsyncTask<String, Void, String> {
-        String resString;
 
         @Override
         protected String doInBackground(String... url) {
@@ -131,13 +135,81 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     kidData.timestamp = json_data.getString("timestamp");
                     kidsData.add(kidData);
                     kidData.marker = mMap.addMarker(new MarkerOptions().position(new LatLng(kidData.lat,kidData.lon)).title(kidData.serial));
-                    Log.e("INFO", String.valueOf(kidData.lat));
                 }
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private class updateSafeArea extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... url) {
+            BufferedReader in = null;
+            String data = null;
+
+            try {
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpGet request = new HttpGet();
+                URI website = new URI("http://safetrip-api-staging.herokuapp.com/options");
+                request.setURI(website);
+                HttpResponse response = httpclient.execute(request);
+                in = new BufferedReader(new InputStreamReader(
+                        response.getEntity().getContent()));
+
+                // Pass data to onPostExecute method
+                return (in.readLine());
+
+            } catch (Exception e) {
+                Log.e("log_tag", "Error in http connection " + e.toString());
+                return "unsuccessful";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            JSONObject settings = null;
+            try {
+                settings = new JSONObject(result);
+                if (settings.getBoolean("safeAreaEnabled")) {
+                    JSONObject temp = settings.getJSONObject("safeAreaGeography");
+                    JSONArray coords = temp.getJSONArray("coordinates");
+                    coords = coords.getJSONArray(0);
+                    if (safeArea != null) safeArea.remove();
+                    safeArea = mMap.addPolygon(new PolygonOptions()
+                            .add(
+                                    getLatLng(coords.getJSONArray(0)),
+                                    getLatLng(coords.getJSONArray(1)),
+                                    getLatLng(coords.getJSONArray(2)),
+                                    getLatLng(coords.getJSONArray(3)),
+                                    getLatLng(coords.getJSONArray(4)),
+                                    getLatLng(coords.getJSONArray(5)),
+                                    getLatLng(coords.getJSONArray(5)),
+                                    getLatLng(coords.getJSONArray(6)),
+                                    getLatLng(coords.getJSONArray(7)),
+                                    getLatLng(coords.getJSONArray(8)),
+                                    getLatLng(coords.getJSONArray(9)),
+                                    getLatLng(coords.getJSONArray(10)),
+                                    getLatLng(coords.getJSONArray(11))
+                            ));
+                }
+                else {
+                    if (safeArea != null)
+                    safeArea.remove();
+                }
+
+            }
+            catch(JSONException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private LatLng getLatLng(JSONArray coord) throws JSONException {
+        return new LatLng(coord.getDouble(1),coord.getDouble(0));
     }
 
 
