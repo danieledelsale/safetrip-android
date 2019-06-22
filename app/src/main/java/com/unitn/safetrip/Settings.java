@@ -106,11 +106,16 @@ public class Settings extends AppCompatActivity {
 
                         settings.put("safeAreaGeography", safeAreaGeography);
                     }
+                    else if (safeAreaToggle.isChecked())
+                    {
+                        Toast.makeText(Settings.this, "Please fill all the fields", Toast.LENGTH_LONG).show();
+                    }
                     settings.put("safeGroupEnabled", safeGroupToggle.isChecked());
                     if (!safeGroupDistance.getText().toString().matches("") && safeGroupToggle.isChecked())
                         settings.put("safeGroupDistance", Integer.parseInt(safeGroupDistance.getText().toString()));
+                    else if (safeGroupToggle.isChecked())
+                        Toast.makeText(Settings.this, "Please fill all the fields", Toast.LENGTH_LONG).show();
                     String request = settings.toString();
-                    Log.e("SENT JSON", request);
                     new sendSettings().execute(request);
 
                 } catch (JSONException e) {
@@ -119,7 +124,7 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        final Button currLocBtn = (Button) findViewById(R.id.setOnMyLocBtn);
+        final Button currLocBtn = findViewById(R.id.setOnMyLocBtn);
         currLocBtn.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             public void onClick(View v) {

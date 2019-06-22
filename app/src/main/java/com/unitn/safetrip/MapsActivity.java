@@ -130,8 +130,8 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     kidData.altitude = json_data.getInt("altitude");
                     kidData.serial = json_data.getString("serial");
                     JSONArray coords = json_data.getJSONArray("location");
-                    kidData.lat = coords.getDouble(0);
-                    kidData.lon = coords.getDouble(1);
+                    kidData.lat = coords.getDouble(1);
+                    kidData.lon = coords.getDouble(0);
                     kidData.timestamp = json_data.getString("timestamp");
                     kidsData.add(kidData);
                     kidData.marker = mMap.addMarker(new MarkerOptions().position(new LatLng(kidData.lat,kidData.lon)).title(kidData.serial));

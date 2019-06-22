@@ -151,17 +151,18 @@ public class LocationUpdate extends Service {
             JSONArray jArray = null;
             try {
                 jArray = new JSONArray(result);
-                int oldListSize = alertList.size();
                 // Extract data from json and store into ArrayList as class objects
                 if (jArray.length() > alertList.size()) {
-                    for (int i = oldListSize; i < jArray.length(); i++) {
+                    for (int i = 0; i < jArray.length(); i++) {
                         JSONObject json_data = jArray.getJSONObject(i);
                         Alert alert = new Alert();
                         alert.id = json_data.getInt("id");
                         alert.serial = json_data.getString("serial");
                         alert.text = json_data.getString("text");
-                        alertList.add(alert);
-                        alert.createNotification();
+                        alert.read = json_data.getBoolean("read");
+                        if (!alert.read)
+                            alertList.add(alert);
+                            alert.createNotification();
                     }
                 }
 
@@ -176,6 +177,7 @@ public class LocationUpdate extends Service {
         int id;
         String text;
         String serial;
+        boolean read;
 
         public void createNotification() {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(LocationUpdate.this, "DEFAULT")
