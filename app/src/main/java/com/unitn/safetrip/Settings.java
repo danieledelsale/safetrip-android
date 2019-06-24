@@ -119,6 +119,7 @@ public class Settings extends AppCompatActivity {
                     String request = settings.toString();
                     new sendSettings().execute(request);
 
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -209,10 +210,10 @@ public class Settings extends AppCompatActivity {
         }
     }
 
-    private class sendSettings extends AsyncTask<String, Void, Void> {
+    private class sendSettings extends AsyncTask<String, Void, String> {
 
         @Override
-        protected Void doInBackground(String... request) {
+        protected String doInBackground(String... request) {
             try {
                 String url = "http://" + hostname + "/options";
                 URL object = new URL(url);
@@ -257,7 +258,13 @@ public class Settings extends AppCompatActivity {
             }
 
 
-            return null;
+            return "ok";
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            finish();
+
         }
     }
 

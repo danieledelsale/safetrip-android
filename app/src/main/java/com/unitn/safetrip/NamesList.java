@@ -130,10 +130,10 @@ public class NamesList extends AppCompatActivity {
         }
     }
 
-    private class sendList extends AsyncTask<String, Void, Void> {
+    private class sendList extends AsyncTask<String, Void, String> {
 
         @Override
-        protected Void doInBackground(String... request) {
+        protected String doInBackground(String... request) {
             try {
                 String url = "http://" + hostname + "/devices";
                 URL object = new URL(url);
@@ -178,7 +178,12 @@ public class NamesList extends AppCompatActivity {
             }
 
 
-            return null;
+            return "ok";
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            finish();
         }
     }
 
