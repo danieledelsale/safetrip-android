@@ -11,15 +11,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -34,8 +29,6 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.Thread.sleep;
 
 public class LocationUpdate extends Service {
 
@@ -160,9 +153,10 @@ public class LocationUpdate extends Service {
                         alert.serial = json_data.getString("serial");
                         alert.text = json_data.getString("text");
                         alert.read = json_data.getBoolean("read");
-                        if (!alert.read)
+                        if (!alert.read) {
                             alertList.add(alert);
                             alert.createNotification();
+                        }
                     }
                 }
 
@@ -184,7 +178,7 @@ public class LocationUpdate extends Service {
                     .setContentTitle("New Alert")
                     .setContentText(this.text)
                     .setSmallIcon(R.drawable.common_google_signin_btn_icon_dark)
-                    .setPriority(NotificationCompat.PRIORITY_MAX);
+                    .setPriority(NotificationCompat.PRIORITY_HIGH);
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(LocationUpdate.this);
             notificationManager.notify(this.id, builder.build());

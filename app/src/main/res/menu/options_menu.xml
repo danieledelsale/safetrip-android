@@ -4,4 +4,7 @@
     <item android:id="@+id/settings"
         android:title="@string/settings"
         app:showAsAction="ifRoom" />
+    <item android:id="@+id/names"
+        android:title="Set names"
+        app:showAsAction="ifRoom" />
 </menu>

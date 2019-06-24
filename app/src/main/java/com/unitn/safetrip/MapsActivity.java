@@ -80,6 +80,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                 Intent myIntent = new Intent(MapsActivity.this, Settings.class);
                 MapsActivity.this.startActivity(myIntent);
                 return true;
+            case R.id.names:
+                Intent myIntent2 = new Intent(MapsActivity.this, NamesList.class);
+                MapsActivity.this.startActivity(myIntent2);
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -120,7 +123,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
 
                 for (int i=0; i<kidsData.size(); i++) kidsData.get(i).removeMarker();
                 kidsData.clear();
-
+                String title;
 
             // Extract data from json and store into ArrayList as class objects
                 for(int i=0;i<jArray.length();i++){
@@ -133,8 +136,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
                     kidData.lat = coords.getDouble(1);
                     kidData.lon = coords.getDouble(0);
                     kidData.timestamp = json_data.getString("timestamp");
+                    kidData.name = json_data.getString("name");
                     kidsData.add(kidData);
-                    kidData.marker = mMap.addMarker(new MarkerOptions().position(new LatLng(kidData.lat,kidData.lon)).title(kidData.serial));
+                    if (kidData.name.matches("")) title = kidData.serial;
+                    else title = kidData.name;
+                    kidData.marker = mMap.addMarker(new MarkerOptions().position(new LatLng(kidData.lat,kidData.lon)).title(title));
                 }
 
             } catch (JSONException e) {
@@ -270,6 +276,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         public String serial;
         public String timestamp;
         public int altitude;
+        public String name;
         Marker marker;
 
         public void removeMarker() {
