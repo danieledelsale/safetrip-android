@@ -41,6 +41,8 @@ public class LocationUpdate extends Service {
     Handler mHandler = new Handler();
     List<Alert> alertList = new ArrayList<>();
 
+    String hostname;
+
     Runnable mHandlerTask = new Runnable()
     {
         @Override
@@ -57,7 +59,6 @@ public class LocationUpdate extends Service {
 
     @Override
     public void onCreate() {
-        // The service is being created
 
 
     }
@@ -65,6 +66,7 @@ public class LocationUpdate extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         createNotificationChannel();
+        hostname = intent.getStringExtra("hostname");
         // The service is starting, due to a call to startService()
         Intent notificationIntent = new Intent(this, LocationUpdate.class);
         PendingIntent pendingIntent =
@@ -124,7 +126,7 @@ public class LocationUpdate extends Service {
                 HttpClient httpclient = new DefaultHttpClient();
 
                 HttpGet request = new HttpGet();
-                URI website = new URI("http://safetrip-api-staging.herokuapp.com/alerts");
+                URI website = new URI("http://" + hostname + "/alerts");
                 request.setURI(website);
                 HttpResponse response = httpclient.execute(request);
                 in = new BufferedReader(new InputStreamReader(

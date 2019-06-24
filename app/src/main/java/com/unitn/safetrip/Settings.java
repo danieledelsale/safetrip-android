@@ -45,12 +45,13 @@ import java.util.Set;
 public class Settings extends AppCompatActivity {
 
     private FusedLocationProviderClient fusedLocationClient;
-
+    String hostname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         super.onCreate(savedInstanceState);
+        hostname = getIntent().getStringExtra("hostname");
         setContentView(R.layout.activity_settings);
 
         new getSettings().execute();
@@ -171,7 +172,7 @@ public class Settings extends AppCompatActivity {
             try {
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpGet request = new HttpGet();
-                URI website = new URI("http://safetrip-api-staging.herokuapp.com/options");
+                URI website = new URI("http://" + hostname + "/options");
                 request.setURI(website);
                 HttpResponse response = httpclient.execute(request);
                 in = new BufferedReader(new InputStreamReader(
@@ -213,7 +214,7 @@ public class Settings extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... request) {
             try {
-                String url = "http://safetrip-api-staging.herokuapp.com/options";
+                String url = "http://" + hostname + "/options";
                 URL object = new URL(url);
 
                 HttpURLConnection con = (HttpURLConnection) object.openConnection();

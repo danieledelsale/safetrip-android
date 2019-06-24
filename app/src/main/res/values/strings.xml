@@ -15,4 +15,5 @@
     <string name="safeGroupToggleTxt">Safe Group Toggle</string>
     <string name="safeGroupRangeTxt">Safe group distance (in meters)</string>
     <string name="saveBtnTxt">Save Settings</string>
+    <string name="serverHostname">placeholder</string>
 </resources>

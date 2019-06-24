@@ -44,12 +44,14 @@ public class NamesList extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
+    String hostname;
 
     List<DevInfo> devList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_names_list);
+        hostname = getIntent().getStringExtra("hostname");
 
         new getList().execute();
 
@@ -87,7 +89,7 @@ public class NamesList extends AppCompatActivity {
             try {
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpGet request = new HttpGet();
-                URI website = new URI("http://safetrip-api-staging.herokuapp.com/devices");
+                URI website = new URI("http://" + hostname + "/devices");
                 request.setURI(website);
                 HttpResponse response = httpclient.execute(request);
                 in = new BufferedReader(new InputStreamReader(
@@ -133,7 +135,7 @@ public class NamesList extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... request) {
             try {
-                String url = "http://safetrip-api-staging.herokuapp.com/devices";
+                String url = "http://" + hostname + "/devices";
                 URL object = new URL(url);
 
                 HttpURLConnection con = (HttpURLConnection) object.openConnection();

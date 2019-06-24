@@ -1,6 +1,7 @@
 package com.unitn.safetrip;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -8,14 +9,18 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
@@ -42,13 +47,16 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLocationButtonClickListener,
+public class MapsActivity extends AppCompatActivity implements GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMyLocationClickListener,
         OnMapReadyCallback {
 
 
     private GoogleMap mMap;
     Intent intent;
+    String hostname = "placeholder";
+    boolean serviceRunning = false;
+
 
     Handler mHandler = new Handler();
     List<KidsData> kidsData = new ArrayList<>();
@@ -59,8 +67,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     {
         @Override
         public void run() {
+            if (!hostname.matches("placeholder")) {
             new updateMap().execute();
             new updateSafeArea().execute();
+            if (!serviceRunning) {
+                intent.putExtra("hostname", hostname);
+                serviceRunning = true;
+                startService(intent);
+            }
+            }
             mHandler.postDelayed(mHandlerTask, 10000);
         }
     };
@@ -78,10 +93,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
         switch (item.getItemId()) {
             case R.id.settings:
                 Intent myIntent = new Intent(MapsActivity.this, Settings.class);
+                myIntent.putExtra("hostname", hostname);
                 MapsActivity.this.startActivity(myIntent);
                 return true;
             case R.id.names:
                 Intent myIntent2 = new Intent(MapsActivity.this, NamesList.class);
+                myIntent2.putExtra("hostname", hostname);
                 MapsActivity.this.startActivity(myIntent2);
             default:
                 return super.onOptionsItemSelected(item);
@@ -100,7 +117,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             try {
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpGet request = new HttpGet();
-                URI website = new URI("http://safetrip-api-staging.herokuapp.com/points/latest");
+                URI website = new URI("http://" + hostname + "/points/latest");
                 request.setURI(website);
                 HttpResponse response = httpclient.execute(request);
                 in = new BufferedReader(new InputStreamReader(
@@ -159,7 +176,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
             try {
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpGet request = new HttpGet();
-                URI website = new URI("http://safetrip-api-staging.herokuapp.com/options");
+                URI website = new URI("http://" + hostname + "/options");
                 request.setURI(website);
                 HttpResponse response = httpclient.execute(request);
                 in = new BufferedReader(new InputStreamReader(
@@ -224,9 +241,34 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnMyLoca
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        intent = new Intent(MapsActivity.this, LocationUpdate.class);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+        builder.setTitle("Set hostname");
 
-        intent = new Intent(this, LocationUpdate.class);
-        startService(intent);
+        // Set up the input
+        final EditText input = new EditText(MapsActivity.this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                hostname = input.getText().toString();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+
+
+
 
 
         SupportMapFragment mapFragment =
